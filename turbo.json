@@ -1,0 +1,78 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "**/.env.*local",
+    ".env",
+    ".env.example"
+  ],
+  "pipeline": {
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^db:generate"]
+    },
+    "build": {
+      "dependsOn": ["^build", "^db:generate"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "build/**",
+        "out/**",
+        "public/build/**"
+      ]
+    },
+    "test": {
+      "dependsOn": ["^build", "^db:generate"],
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "deploy": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false,
+      "outputs": [
+        "node_modules/.prisma/**",
+        "prisma/generated/**"
+      ]
+    },
+    "db:migrate": {
+      "cache": false,
+      "dependsOn": ["db:generate"]
+    },
+    "db:seed": {
+      "cache": false,
+      "dependsOn": ["db:migrate"]
+    },
+    "db:studio": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "type-check": {
+      "dependsOn": ["^build", "^db:generate"],
+      "outputs": []
+    }
+  },
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "OPENROUTER_API_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_PUBLISHABLE_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "MODAL_TOKEN_ID",
+    "MODAL_TOKEN_SECRET"
+  ]
+}

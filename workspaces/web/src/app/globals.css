@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%; /* Dark mode default */
+    --foreground: 0 0% 98%;
+    --primary: 217 91% 60%; /* From design-system.md #3B82F6 converted to HSL */
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 244 58% 67%; /* From design-system.md #6366F1 converted to HSL */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 330 81% 60%; /* From design-system.md #EC4899 converted to HSL */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%; /* From design-system.md #EF4444 converted to HSL */
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.5rem;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --color-surface: 220 26% 18%; /* Dark mode from design-system.md #1F2937 */
+    --color-success: 158 64% 52%; /* #10B981 */
+    --color-warning: 38 92% 50%; /* #F59E0B */
+    --color-neutral: 220 14% 96%; /* #F3F4F6 */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  /* Light mode variant */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --primary: 217 91% 60%; /* #3B82F6 */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 244 58% 67%; /* #6366F1 */
+    --secondary-foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 330 81% 60%; /* #EC4899 */
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --color-surface: 0 0% 100%; /* #FFFFFF */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  /* Auto-detect dark mode - handled by next-themes */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-inter; /* Use Inter from design-system.md */
+  }
+
+  /* Accessibility focus */
+  *:focus-visible {
+    @apply ring-2 ring-offset-2 ring-[hsl(var(--ring))];
+  }
+
+  /* Framer Motion animation helper */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+}.animate
+-in {
+  animation: animate-in 0.5s ease-out;
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

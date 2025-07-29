@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Abstract User model - can represent any type of user/account
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  metadata  Json?    // Extensible data for user preferences, settings, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  projects  Project[]
+  
+  @@map("users")
+}
+
+// Abstract Project model - can represent any type of container/workspace
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  slug        String?  @unique
+  metadata    Json?    // Extensible data for project settings, configuration, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  entities    Entity[]
+  secrets     Secret[]
+  
+  @@map("projects")
+}
+
+// Abstract Entity model - can represent any type of content/data
+model Entity {
+  id          String   @id @default(uuid())
+  name        String   // Generic title/name field
+  description String?  // Generic content/body field
+  slug        String?  // URL-friendly identifier
+  status      String   @default("draft") // draft, published, archived, etc.
+  metadata    Json?    // Extensible data for any use case (price, tags, custom fields, etc.)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Indexes for performance
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@unique([projectId, slug])
+  @@map("entities")
+}
+
+model Secret {
+  id        String   @id @default(uuid())
+  projectId String
+  key       String
+  value     String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@unique([projectId, key])
+  @@map("secrets")
+}
