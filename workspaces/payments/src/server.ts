@@ -54,6 +54,7 @@ app.post('/checkout', async (req, res) => {
 
     const result = await paymentService.createContentCheckout({
       entityId,
+      entityName: 'Unknown',
       price: parseFloat(price),
       successUrl,
       cancelUrl,

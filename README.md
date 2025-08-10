@@ -4,7 +4,7 @@ A comprehensive, generic monorepo starter template designed to serve as a founda
 
 ## 🚀 Features
 
-- **Modular Architecture**: 7 independent workspaces that can be removed without breaking the system
+- **Modular Architecture**: 6 core workspaces (+ CLI) that can be removed without breaking the system
 - **AI-Powered**: Extensible AI agents with OpenRouter integration and custom tool system
 - **Multiple Frontends**: Next.js web app and Expo React Native mobile app
 - **Robust Backend**: FastAPI server with Prisma database integration
@@ -23,7 +23,7 @@ A comprehensive, generic monorepo starter template designed to serve as a founda
 │   ├── payments/     # Stripe integration
 │   └── cli/          # Interactive CLI tools
 ├── scripts/          # Utility scripts
-└── .kiro/           # Kiro configuration and specs
+└── scripts/          # (Optional) your own project scripts
 ```
 
 ## 🛠 Quick Start
@@ -35,11 +35,13 @@ A comprehensive, generic monorepo starter template designed to serve as a founda
    npm install
    ```
 
-2. **Configure environment**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your credentials
-   ```
+2. **Configure environment (optional for initial build)**:
+   - Copy sample env files and fill in values when ready to integrate services.
+   - Web: `cp workspaces/web/.env.local.example workspaces/web/.env.local`
+   - Mobile: `cp workspaces/mobile/.env.example workspaces/mobile/.env`
+   - Payments: `cp workspaces/payments/.env.example workspaces/payments/.env`
+   - Database: `cp workspaces/database/.env.example workspaces/database/.env`
+   - Backend: `cp workspaces/backend/.env.example workspaces/backend/.env`
 
 3. **Initialize database**:
    ```bash
@@ -65,7 +67,7 @@ A comprehensive, generic monorepo starter template designed to serve as a founda
 
 ## 🏗 Architecture
 
-The scaffold uses a hub-and-spoke architecture where the database workspace serves as the central data layer. All workspaces are designed to be independently removable while maintaining system functionality.
+The scaffold uses a hub-and-spoke architecture. All workspaces are designed to be independently removable while maintaining system functionality. Database tasks are fully decoupled from default dev/build so fresh clones build without a database.
 
 ### Core Concepts
 
@@ -109,9 +111,7 @@ Each workspace supports different deployment targets:
 
 ## 📚 Documentation
 
-- [Requirements](.kiro/specs/modular-ai-scaffold/requirements.md)
-- [Design Document](.kiro/specs/modular-ai-scaffold/design.md)
-- [Implementation Tasks](.kiro/specs/modular-ai-scaffold/tasks.md)
+This scaffold is intentionally minimal and safe by default. Add your own docs as your project evolves.
 
 ## 🤝 Contributing
 

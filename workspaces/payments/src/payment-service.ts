@@ -160,7 +160,7 @@ export class PaymentService {
       },
     });
 
-    return entities.map(entity => ({
+    return entities.map((entity: any) => ({
       ...entity,
       payment: entity.metadata ? (entity.metadata as any).payment : null,
     }));

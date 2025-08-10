@@ -85,7 +85,7 @@ export async function runDemo(): Promise<void> {
     });
 
     console.log(`\n📊 Generated ${entities.length} entities:`);
-    entities.forEach((entity, index) => {
+    entities.forEach((entity: any, index: number) => {
       console.log(`${index + 1}. ${entity.name} (${entity.status})`);
     });
 

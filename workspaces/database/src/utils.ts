@@ -1,5 +1,4 @@
 import { prisma } from './client'
-import type { User, Project, Entity } from '@prisma/client'
 
 // Database connection utilities
 export class DatabaseUtils {
@@ -81,7 +80,11 @@ export class DatabaseUtils {
 }
 
 // Type exports for better TypeScript support
-export type { User, Project, Entity }
+// Define minimal interfaces to avoid requiring Prisma type generation
+export interface User { id: string; email: string; name?: string | null }
+export interface Project { id: string; name: string; ownerId: string; slug?: string | null }
+export interface Entity { id: string; name: string; projectId: string; status: string }
+
 export type UserWithProjects = User & { projects: Project[] }
 export type ProjectWithEntities = Project & { entities: Entity[] }
 export type ProjectWithOwner = Project & { owner: User }

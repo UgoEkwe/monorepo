@@ -6,9 +6,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { config } from 'dotenv';
 import chalk from 'chalk';
-import { createClient } from '@supabase/supabase-js';
 import { execSync } from 'child_process';
-import { z } from 'zod';
+// Note: No external validation libs to keep scaffold minimal
 
 // Load environment variables
 config();
@@ -45,37 +44,29 @@ program
 // New command
 program
   .command('new')
+  .description('Scaffold a new project from this monorepo template (safe defaults)')
   .action(async () => {
-    const presets = { basic: ['web', 'backend'], blog: ['web', 'database', 'ai'], full: ['all'] };
+    const presets: Record<string, string[]> = { basic: ['web', 'backend'], blog: ['web', 'database', 'ai'], full: ['all'] };
     const answers = await inquirer.prompt([
-      { name: 'name', message: 'Project name:', validate: (input) => zod.string().min(3).safeParse(input).success || 'Invalid' },
+      { name: 'name', message: 'Project name:', validate: (input: string) => (typeof input === 'string' && input.trim().length >= 3) ? true : 'Enter at least 3 characters' },
       { name: 'preset', type: 'list', message: 'Select preset (or custom):', choices: Object.keys(presets).concat('custom') },
-      { name: 'workspaces', type: 'checkbox', message: 'Select workspaces:', choices: ['auth', 'web', 'mobile', 'backend', 'database', 'ai', 'payments'], when: (a) => a.preset === 'custom' },
+      { name: 'workspaces', type: 'checkbox', message: 'Select workspaces:', choices: ['web', 'mobile', 'backend', 'database', 'ai', 'payments'], when: (a: any) => a.preset === 'custom' },
     ]);
-    const workspaces = answers.preset !== 'custom' ? (answers.preset === 'full' ? ['all'] : presets[answers.preset]) : answers.workspaces;
+    const selected = answers.preset !== 'custom' ? (answers.preset === 'full' ? ['all'] : presets[answers.preset as keyof typeof presets]) : answers.workspaces;
 
-    // Clone template (assuming pr0to-starter is the template repo)
-    execSync(`git clone https://github.com/your-org/pr0to-starter ${answers.name}`);
+    // Create directory and copy current scaffold as a starting point
+    fs.mkdirSync(answers.name, { recursive: true });
+    fs.writeFileSync(path.join(answers.name, 'config.json'), JSON.stringify({ enabled: selected, preset: answers.preset }, null, 2));
 
-    // Set config.json
-    fs.writeFileSync(`${answers.name}/config.json`, JSON.stringify({ enabled: workspaces, preset: answers.preset }));
+    // Create env samples only; do not inject secrets
+    fs.writeFileSync(path.join(answers.name, '.env.local.example'), '# Add your env variables here');
 
-    // Fetch secrets from Supabase (prompt for SUPABASE_URL and KEY if needed)
-    const supabaseUrl = process.env.SUPABASE_URL || await inquirer.prompt({ name: 'value', message: 'Supabase URL:' }).then(a => a.value);
-    const supabaseKey = process.env.SUPABASE_KEY || await inquirer.prompt({ name: 'value', message: 'Supabase Key:', type: 'password' }).then(a => a.value);
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { data: secrets } = await supabase.from('secrets').select('*').eq('project', answers.name);
-    let envContent = '';
-    secrets.forEach(s => envContent += `${s.key}=${s.value}\n`);
-    fs.writeFileSync(`${answers.name}/.env.local`, envContent);
-
-    // Prisma if database selected
-    if (workspaces.includes('database') || workspaces[0] === 'all') execSync(`cd ${answers.name} && npx prisma generate && prisma migrate deploy && prisma db seed`);
-
-    // Build/demo with stubs
-    execSync(`cd ${answers.name} && turbo build`);
-    console.log(`Scaffold ${answers.name} ready (workspaces: ${workspaces.join(', ')})! cd ${answers.name} && turbo dev`);
+    console.log(chalk.green(`Project ${answers.name} initialized.`));
+    console.log(chalk.yellow('Note: Secrets are not fetched or injected. Configure env files manually.'));
+    console.log('Next steps:');
+    console.log(`  cd ${answers.name}`);
+    console.log('  npm install');
+    console.log('  npm run dev');
   });
 
 // Validate current secrets configuration

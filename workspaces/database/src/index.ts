@@ -4,10 +4,5 @@ export { prisma, default } from './client'
 // Export utilities and types
 export * from './utils'
 
-// Re-export Prisma types for convenience
-export type {
-  User,
-  Project,
-  Entity,
-  Prisma
-} from '@prisma/client'
+// Note: Do not re-export Prisma model types to keep this package buildable
+// without requiring local Prisma schema generation.

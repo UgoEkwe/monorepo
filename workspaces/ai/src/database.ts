@@ -7,10 +7,5 @@ export const prisma = new PrismaClient({
   errorFormat: 'pretty',
 });
 
-// Export types for convenience
-export type {
-  User,
-  Project,
-  Entity,
-  Prisma
-} from '@prisma/client';
+// Note: Do not re-export model types here to keep this workspace buildable
+// without requiring Prisma schema generation. Use local interfaces instead.

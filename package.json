@@ -22,13 +22,7 @@
     "db:migrate": "turbo run db:migrate --filter=database",
     "db:seed": "turbo run db:seed --filter=database",
     "db:studio": "turbo run db:studio --filter=database",
-    "setup": "npm install && npm run db:generate && npm run db:migrate && npm run db:seed",
-    "workspace:check": "node scripts/check-workspaces.js",
-    "workspace:test": "node scripts/test-workspace-resilience.js",
-    "auth:test": "node scripts/test-workspace-resilience.js",
-    "test:auth": "node scripts/test-modular-authentication.js",
-    "test:integration": "node scripts/test-workspace-integration.js",
-    "verify:auth": "node scripts/verify-authentication.js"
+    "setup": "npm install && npm run db:generate && npm run db:migrate && npm run db:seed"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

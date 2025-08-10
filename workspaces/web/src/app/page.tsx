@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { AuthButton } from '@/components/auth-button'
 import { EntityList } from '@/components/entity-list'
-import { PacmanGame } from '@/components/pacman-game'
 import { Zap, BarChart, Users, Shield, Layers, Star, ArrowRight, Check, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -92,9 +91,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
-      {/* Pac-Man Game Overlay */}
-      <PacmanGame />
-      
       {/* Header */}
       <header className="sticky top-0 z-50 w-full backdrop-blur-lg bg-background/80 shadow-sm">
         <div className="container flex h-16 items-center justify-between">

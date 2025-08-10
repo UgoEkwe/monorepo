@@ -8,11 +8,10 @@
   "pipeline": {
     "dev": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": ["^db:generate"]
+      "persistent": true
     },
     "build": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build"],
       "outputs": [
         "dist/**",
         ".next/**",
@@ -22,7 +21,7 @@
       ]
     },
     "test": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build"],
       "outputs": [
         "coverage/**"
       ]
@@ -58,21 +57,8 @@
       "outputs": []
     },
     "type-check": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build"],
       "outputs": []
     }
-  },
-  "globalEnv": [
-    "NODE_ENV",
-    "DATABASE_URL",
-    "SUPABASE_URL",
-    "SUPABASE_ANON_KEY",
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "OPENROUTER_API_KEY",
-    "STRIPE_SECRET_KEY",
-    "STRIPE_PUBLISHABLE_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "MODAL_TOKEN_ID",
-    "MODAL_TOKEN_SECRET"
-  ]
+  }
 }
