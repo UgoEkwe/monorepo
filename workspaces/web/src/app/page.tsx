@@ -8,7 +8,12 @@ import { Zap, BarChart, Users, Shield, Layers, Star, ArrowRight, Check, ChevronR
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { User } from '@supabase/supabase-js'
+// Conditional import for Supabase types
+type User = {
+  id: string;
+  email?: string;
+  user_metadata?: Record<string, any>;
+};
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
@@ -25,7 +30,7 @@ export default function Dashboard() {
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: string, session: any) => {
         setUser(session?.user ?? null)
       }
     )

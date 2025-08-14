@@ -1,3 +1,4 @@
+// Core Prisma schema - essential models that are always available
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -20,29 +21,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Relationships
-  projects  Project[]
-  
   @@map("users")
-}
 
-// Abstract Project model - can represent any type of container/workspace
-model Project {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  slug        String?  @unique
-  metadata    Json?    // Extensible data for project settings, configuration, etc.
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relationships
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  entities    Entity[]
-  secrets     Secret[]
-  
-  @@map("projects")
+  projects  Project[]
 }
 
 // Abstract Entity model - can represent any type of content/data
@@ -56,16 +37,34 @@ model Entity {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  // Relationships
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
   // Indexes for performance
-  @@index([projectId])
   @@index([status])
   @@index([createdAt])
-  @@unique([projectId, slug])
   @@map("entities")
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@unique([projectId, slug])
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  slug        String?  @unique
+  metadata    Json?    // Extensible data for project settings, configuration, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  entities    Entity[]
+  secrets     Secret[]
+
+  @@map("projects")
 }
 
 model Secret {
@@ -79,3 +78,6 @@ model Secret {
   @@unique([projectId, key])
   @@map("secrets")
 }
+
+
+

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-08-14T01:28:08.180Z",
+  "command": "echo 'test command'",
+  "duration": 16,
+  "system": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpus": 10,
+    "totalMemory": "16GB"
+  },
+  "analysis": null,
+  "rawData": []
+}

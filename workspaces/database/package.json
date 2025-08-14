@@ -5,16 +5,20 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run schema:generate && tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
+    "schema:generate": "node scripts/generate-schema.js",
+    "db:generate": "npm run schema:generate && prisma generate",
+    "db:migrate": "npm run schema:generate && prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
-    "db:deploy": "prisma migrate deploy",
-    "test": "jest"
+    "db:deploy": "npm run schema:generate && prisma migrate deploy",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "validate": "echo 'No lint configured for database workspace'",
+    "validate:deps": "node ../../scripts/validate-deps.js database"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

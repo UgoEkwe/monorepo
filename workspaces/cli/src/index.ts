@@ -1,53 +1,120 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
-import inquirer from 'inquirer';
+import { safeImport, featureFlags } from '@modular-ai-scaffold/core/utils/optional-deps';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config } from 'dotenv';
-import chalk from 'chalk';
 import { execSync } from 'child_process';
-// Note: No external validation libs to keep scaffold minimal
+
+// Conditional imports for CLI dependencies
+const commander = safeImport('commander');
+const inquirer = safeImport('inquirer');
+const dotenv = safeImport('dotenv');
+const chalk = safeImport('chalk');
+
+// Load environment variables if dotenv is available
+if (dotenv.available && dotenv.module) {
+  dotenv.module.config();
+}
+
+// Fallback implementations for missing dependencies
+const createFallbackChalk = () => ({
+  blue: (text: string) => text,
+  green: (text: string) => text,
+  red: (text: string) => text,
+  yellow: (text: string) => text,
+  gray: (text: string) => text,
+});
+
+const createFallbackInquirer = () => ({
+  prompt: async (questions: any[]) => {
+    console.warn('Interactive prompts not available - using defaults');
+    const answers: any = {};
+    for (const question of questions) {
+      if (question.default !== undefined) {
+        answers[question.name] = question.default;
+      } else if (question.type === 'list') {
+        answers[question.name] = question.choices?.[0];
+      } else if (question.type === 'checkbox') {
+        answers[question.name] = [];
+      } else {
+        answers[question.name] = '';
+      }
+    }
+    return answers;
+  }
+});
+
+// Get safe instances
+const chalkInstance = chalk.available ? chalk.module : createFallbackChalk();
+const inquirerInstance = inquirer.available ? inquirer.module : createFallbackInquirer();
 
 // Load environment variables
 config();
 
-const program = new Command();
-
-program
-  .name('modular-ai')
-  .description('CLI for Modular AI Scaffold management')
-  .version('1.0.0');
-
-// Secrets management command
-program
-  .command('secrets')
-  .description('Manage environment secrets and configuration')
-  .option('--validate', 'Validate current secrets configuration')
-  .option('--setup', 'Interactive setup for all secrets')
-  .option('--export <file>', 'Export secrets to file with placeholders')
-  .action(async (options) => {
-    if (options.validate) {
-      await validateSecrets();
-    } else if (options.setup) {
-      await interactiveSetup();
-    } else if (options.export) {
-      await exportSecrets(options.export);
-    } else {
-      console.log(chalk.blue('Available secret management commands:'));
-      console.log('  modular-ai secrets --validate    Validate current secrets');
-      console.log('  modular-ai secrets --setup       Interactive secrets setup');
-      console.log('  modular-ai secrets --export      Export secrets with placeholders');
+// Create program instance with fallback
+const createProgram = () => {
+  if (commander.available && commander.module) {
+    const { Command } = commander.module;
+    return new Command();
+  }
+  
+  // Fallback program implementation
+  return {
+    name: (n: string) => ({ description: (d: string) => ({ version: (v: string) => ({}) }) }),
+    command: (cmd: string) => ({
+      description: (desc: string) => ({
+        option: (opt: string, desc: string) => ({
+          action: (fn: Function) => {}
+        }),
+        action: (fn: Function) => {}
+      })
+    }),
+    parse: () => {
+      console.warn('Commander.js not available - CLI functionality limited');
     }
-  });
+  };
+};
 
-// New command
-program
-  .command('new')
-  .description('Scaffold a new project from this monorepo template (safe defaults)')
-  .action(async () => {
-    const presets: Record<string, string[]> = { basic: ['web', 'backend'], blog: ['web', 'database', 'ai'], full: ['all'] };
-    const answers = await inquirer.prompt([
+const program = createProgram();
+
+if (commander.available) {
+  program
+    .name('modular-ai')
+    .description('CLI for Modular AI Scaffold management')
+    .version('1.0.0');
+}
+
+// Only set up commands if commander is available
+if (commander.available && commander.module) {
+  // Secrets management command
+  program
+    .command('secrets')
+    .description('Manage environment secrets and configuration')
+    .option('--validate', 'Validate current secrets configuration')
+    .option('--setup', 'Interactive setup for all secrets')
+    .option('--export <file>', 'Export secrets to file with placeholders')
+    .action(async (options) => {
+      if (options.validate) {
+        await validateSecrets();
+      } else if (options.setup) {
+        await interactiveSetup();
+      } else if (options.export) {
+        await exportSecrets(options.export);
+      } else {
+        console.log(chalkInstance.blue('Available secret management commands:'));
+        console.log('  modular-ai secrets --validate    Validate current secrets');
+        console.log('  modular-ai secrets --setup       Interactive secrets setup');
+        console.log('  modular-ai secrets --export      Export secrets with placeholders');
+      }
+    });
+
+  // New command
+  program
+    .command('new')
+    .description('Scaffold a new project from this monorepo template (safe defaults)')
+    .action(async () => {
+      const presets: Record<string, string[]> = { basic: ['web', 'backend'], blog: ['web', 'database', 'ai'], full: ['all'] };
+    const answers = await inquirerInstance.prompt([
       { name: 'name', message: 'Project name:', validate: (input: string) => (typeof input === 'string' && input.trim().length >= 3) ? true : 'Enter at least 3 characters' },
       { name: 'preset', type: 'list', message: 'Select preset (or custom):', choices: Object.keys(presets).concat('custom') },
       { name: 'workspaces', type: 'checkbox', message: 'Select workspaces:', choices: ['web', 'mobile', 'backend', 'database', 'ai', 'payments'], when: (a: any) => a.preset === 'custom' },
@@ -61,8 +128,8 @@ program
     // Create env samples only; do not inject secrets
     fs.writeFileSync(path.join(answers.name, '.env.local.example'), '# Add your env variables here');
 
-    console.log(chalk.green(`Project ${answers.name} initialized.`));
-    console.log(chalk.yellow('Note: Secrets are not fetched or injected. Configure env files manually.'));
+    console.log(chalkInstance.green(`Project ${answers.name} initialized.`));
+    console.log(chalkInstance.yellow('Note: Secrets are not fetched or injected. Configure env files manually.'));
     console.log('Next steps:');
     console.log(`  cd ${answers.name}`);
     console.log('  npm install');
@@ -71,7 +138,7 @@ program
 
 // Validate current secrets configuration
 async function validateSecrets(): Promise<void> {
-  console.log(chalk.blue('Validating secrets configuration...'));
+  console.log(chalkInstance.blue('Validating secrets configuration...'));
   
   const requiredSecrets = [
     'DATABASE_URL',
@@ -92,9 +159,9 @@ async function validateSecrets(): Promise<void> {
   }
 
   if (missingSecrets.length === 0) {
-    console.log(chalk.green('✓ All required secrets are configured'));
+    console.log(chalkInstance.green('✓ All required secrets are configured'));
   } else {
-    console.log(chalk.red('✗ Missing required secrets:'));
+    console.log(chalkInstance.red('✗ Missing required secrets:'));
     missingSecrets.forEach(secret => {
       console.log(`  - ${secret}`);
     });
@@ -102,16 +169,16 @@ async function validateSecrets(): Promise<void> {
 
   // Check development mode
   if (process.env.NODE_ENV === 'development') {
-    console.log(chalk.yellow('⚠ Development mode enabled - using mock data where available'));
+    console.log(chalkInstance.yellow('⚠ Development mode enabled - using mock data where available'));
   }
 }
 
 // Interactive setup for all secrets
 async function interactiveSetup(): Promise<void> {
-  console.log(chalk.blue('Interactive Secrets Setup'));
-  console.log(chalk.gray('Press Ctrl+C to exit at any time\n'));
+  console.log(chalkInstance.blue('Interactive Secrets Setup'));
+  console.log(chalkInstance.gray('Press Ctrl+C to exit at any time\n'));
 
-  const answers: any = await inquirer.prompt([
+  const answers: any = await inquirerInstance.prompt([
     {
       type: 'input',
       name: 'databaseUrl',
@@ -185,12 +252,12 @@ async function interactiveSetup(): Promise<void> {
   }
 
   fs.writeFileSync(envPath, envContent);
-  console.log(chalk.green('✓ Secrets updated successfully'));
+  console.log(chalkInstance.green('✓ Secrets updated successfully'));
 }
 
 // Export secrets with placeholders
 async function exportSecrets(filePath: string): Promise<void> {
-  console.log(chalk.blue(`Exporting secrets to ${filePath}...`));
+  console.log(chalkInstance.blue(`Exporting secrets to ${filePath}...`));
   
   const placeholderSecrets = {
     'DATABASE_URL': 'postgresql://username:password@localhost:5432/modular_ai_scaffold',
@@ -226,8 +293,16 @@ async function exportSecrets(filePath: string): Promise<void> {
   }
 
   fs.writeFileSync(filePath, exportContent);
-  console.log(chalk.green(`✓ Secrets exported to ${filePath}`));
+  console.log(chalkInstance.green(`✓ Secrets exported to ${filePath}`));
+}
+
+  });
 }
 
 // Initialize program
-program.parse();
+if (commander.available) {
+  program.parse();
+} else {
+  console.log('CLI functionality limited - commander.js not available');
+  console.log('Available functions can be called directly from the module');
+}

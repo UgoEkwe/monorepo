@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-08-14T01:28:02.805Z",
+  "system": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpus": 10,
+    "memory": "16GB",
+    "node": "v20.19.1"
+  },
+  "buildBenchmarks": {},
+  "testBenchmarks": {},
+  "cacheEffectiveness": null,
+  "summary": {
+    "totalBenchmarks": 0,
+    "fastestBuild": null,
+    "slowestBuild": null,
+    "averageBuildTime": 0,
+    "cacheSpeedup": 0
+  }
+}

@@ -1,0 +1,42 @@
+// Core Prisma schema - essential models that are always available
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Abstract User model - can represent any type of user/account
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  metadata  Json?    // Extensible data for user preferences, settings, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+
+// Abstract Entity model - can represent any type of content/data
+model Entity {
+  id          String   @id @default(uuid())
+  name        String   // Generic title/name field
+  description String?  // Generic content/body field
+  slug        String?  // URL-friendly identifier
+  status      String   @default("draft") // draft, published, archived, etc.
+  metadata    Json?    // Extensible data for any use case (price, tags, custom fields, etc.)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Indexes for performance
+  @@index([status])
+  @@index([createdAt])
+  @@map("entities")
+}

@@ -26,6 +26,10 @@ from utils.secrets_manager import get_secrets_manager
 # Load environment variables
 load_dotenv()
 
+# Validate environment configuration
+from utils.env_validator import validator
+env_config = validator.validate_and_exit_on_error()
+
 # Initialize secrets manager and validate configuration
 secrets_manager = get_secrets_manager()
 secrets_valid = secrets_manager.validate_and_setup()

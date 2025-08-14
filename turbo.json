@@ -11,7 +11,9 @@
       "persistent": true
     },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "dist/**",
         ".next/**",
@@ -21,13 +23,17 @@
       ]
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "coverage/**"
       ]
     },
     "deploy": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": false
     },
     "clean": {
@@ -42,23 +48,164 @@
     },
     "db:migrate": {
       "cache": false,
-      "dependsOn": ["db:generate"]
+      "dependsOn": [
+        "db:generate"
+      ]
     },
     "db:seed": {
       "cache": false,
-      "dependsOn": ["db:migrate"]
+      "dependsOn": [
+        "db:migrate"
+      ]
     },
     "db:studio": {
       "cache": false,
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     },
     "type-check": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
+    },
+    "validate": {
+      "dependsOn": [
+        "lint",
+        "type-check",
+        "validate:deps"
+      ],
+      "outputs": []
+    },
+    "validate:deps": {
+      "cache": true,
+      "outputs": []
+    },
+    "dev:test-lib": {
+      "cache": true,
+      "persistent": true,
+      "dependsOn": [
+        "^build:core"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "build:test-lib": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "test:test-lib": {
+      "dependsOn": [],
+      "cache": true,
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "dev:test-web": {
+      "cache": true,
+      "persistent": true,
+      "dependsOn": [
+        "^build:core"
+      ],
+      "outputs": [
+        ".next/**"
+      ],
+      "env": [
+        "ENABLE_SUPABASE",
+        "ENABLE_DATABASE",
+        "NEXT_PUBLIC_*"
+      ]
+    },
+    "build:test-web": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "out/**"
+      ]
+    },
+    "test:test-web": {
+      "dependsOn": [],
+      "cache": true,
+      "outputs": [
+        "coverage/**",
+        ".next/**"
+      ]
+    },
+    "dev:test-mobile": {
+      "cache": true,
+      "persistent": true,
+      "dependsOn": [
+        "^build:core"
+      ],
+      "outputs": [
+        "dist/**",
+        ".expo/**"
+      ],
+      "env": [
+        "ENABLE_SUPABASE",
+        "EXPO_*"
+      ]
+    },
+    "build:test-mobile": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".expo/**",
+        "build/**"
+      ]
+    },
+    "test:test-mobile": {
+      "dependsOn": [],
+      "cache": true,
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "dev:test-service": {
+      "cache": true,
+      "persistent": true,
+      "dependsOn": [
+        "^build:core"
+      ],
+      "outputs": [
+        "__pycache__/**",
+        "dist/**"
+      ],
+      "env": [
+        "DATABASE_URL",
+        "ENABLE_*"
+      ]
+    },
+    "build:test-service": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "__pycache__/**",
+        "dist/**"
+      ]
+    },
+    "test:test-service": {
+      "dependsOn": [],
+      "cache": true,
+      "outputs": [
+        "coverage/**",
+        "__pycache__/**"
+      ]
     }
   }
 }

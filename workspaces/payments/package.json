@@ -7,8 +7,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "vitest --run",
+    "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run type-check",
+    "validate:deps": "node ../../scripts/validate-deps.js payments",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

@@ -22,12 +22,19 @@ export async function runDemo(): Promise<void> {
     if (!process.env.OPENROUTER_API_KEY) {
       console.log('⚠️  OPENROUTER_API_KEY not found. Please set up your API key to run the full demo.');
       console.log('📝 The AI workspace is properly configured and ready to use once credentials are provided.');
-      return;
+      
+      // In development mode, continue with demo mode
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔧 Running in development mode with demo data...');
+      } else {
+        return;
+      }
     }
 
+    // Database is now optional - continue even without DATABASE_URL
     if (!process.env.DATABASE_URL) {
-      console.log('⚠️  DATABASE_URL not found. Please set up your database connection.');
-      return;
+      console.log('⚠️  DATABASE_URL not found. Running with fallback database client.');
+      console.log('📝 Demo data will be used instead of persistent storage.');
     }
 
     // Find or create a demo project

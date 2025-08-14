@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
+import { validateWorkspaceEnvironment, featureFlags } from '@modular-ai-scaffold/core'
 import { formatDateTime } from '@/lib/utils'
 import { FileText, Calendar, User, Loader2, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -57,11 +58,17 @@ export function EntityList({ userId }: EntityListProps) {
         .limit(20)
 
       if (error) {
+        // Handle fallback mode gracefully
+        if (error.message.includes('not configured')) {
+          console.info('Using fallback mode - showing demo entities')
+          setEntities(generateDemoEntities())
+          return
+        }
         throw error
       }
 
       // Transform the data to match our Entity type
-      const transformedData = (data || []).map(item => ({
+      const transformedData = (data || []).map((item: any) => ({
         ...item,
         project: Array.isArray(item.project) ? item.project[0] : item.project
       }))
@@ -69,12 +76,53 @@ export function EntityList({ userId }: EntityListProps) {
       setEntities(transformedData)
     } catch (err) {
       console.error('Error fetching entities:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch entities')
+      
+      // In development mode, show demo data instead of error
+      if (process.env.NODE_ENV === 'development') {
+        console.info('Development mode: showing demo entities instead of error')
+        setEntities(generateDemoEntities())
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to fetch entities')
+      }
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
   }
+
+  // Generate demo entities for fallback mode
+  const generateDemoEntities = (): Entity[] => [
+    {
+      id: 'demo-1',
+      name: 'Demo Article: Getting Started with AI',
+      description: 'A comprehensive guide to understanding artificial intelligence and its applications in modern development.',
+      status: 'published',
+      metadata: { type: 'article', wordCount: 1200, tags: ['ai', 'tutorial'] },
+      createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      project: { id: 'demo-project-1', name: 'Demo Blog Project' }
+    },
+    {
+      id: 'demo-2',
+      name: 'Demo Product: Smart Analytics Dashboard',
+      description: 'An intelligent dashboard that provides real-time insights and predictive analytics for business metrics.',
+      status: 'draft',
+      metadata: { type: 'product', features: ['analytics', 'real-time', 'predictions'] },
+      createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      project: { id: 'demo-project-2', name: 'Demo SaaS Project' }
+    },
+    {
+      id: 'demo-3',
+      name: 'Demo Content: API Documentation',
+      description: 'Complete API documentation with examples, authentication guides, and best practices.',
+      status: 'published',
+      metadata: { type: 'documentation', endpoints: 25, examples: 50 },
+      createdAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+      updatedAt: new Date(Date.now() - 172800000).toISOString(),
+      project: { id: 'demo-project-3', name: 'Demo API Project' }
+    }
+  ]
 
   useEffect(() => {
     fetchEntities()

@@ -353,3 +353,5 @@ fastlane/test_output
 
 # Modal
 .modal_cache/
+
+.kiro/

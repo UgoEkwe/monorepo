@@ -4,18 +4,37 @@
   "description": "FastAPI backend with entity management and AI integration",
   "scripts": {
     "dev": "python main.py",
+    "build": "echo 'Python backend - no build step required'",
     "start": "python main.py",
-    "install": "pip install -r requirements.txt",
+    "install": "python scripts/install-deps.py",
+    "install:python": "pip install -r requirements.txt",
+    "install:js": "npm install",
     "generate": "prisma generate",
     "deploy": "modal deploy modal_app.py",
     "deploy:dev": "modal serve modal_app.py",
-    "test": "python -m pytest tests/ -v",
+    "test": "python -m pytest tests/ -v && vitest run",
+    "test:python": "python -m pytest tests/ -v",
+    "test:js": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "python -m pytest tests/ --cov=. && vitest run --coverage",
+    "validate": "npm run lint && npm run format",
+    "validate:deps": "node ../../scripts/validate-deps.js backend",
     "lint": "python -m flake8 .",
     "format": "python -m black .",
-    "clean": "find . -type d -name __pycache__ -exec rm -rf {} + || true"
+    "clean": "find . -type d -name __pycache__ -exec rm -rf {} + || true",
+    "validate:env": "python -c \"import os; print('DATABASE_URL:', bool(os.getenv('DATABASE_URL'))); print('ENABLE_PRISMA:', os.getenv('ENABLE_PRISMA', 'true'))\""
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "prisma": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@prisma/client": "^5.22.0"
+  },
   "keywords": [
     "fastapi",
     "backend",

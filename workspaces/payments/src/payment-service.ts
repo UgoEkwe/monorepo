@@ -1,3 +1,8 @@
+import { safeImport, featureFlags, createFallbackProxy } from '@modular-ai-scaffold/core/utils/optional-deps';
+import { StripeClient } from './stripe-client';
+import { WebhookHandler } from './webhook-handler';
+import { CheckoutSessionConfig, PaymentResult, EntityMetadataUpdate } from './types';
+
 // Database interface for dependency injection
 interface DatabaseClient {
   entity: {
@@ -7,20 +12,84 @@ interface DatabaseClient {
   };
   $disconnect: () => Promise<void>;
 }
-import { StripeClient } from './stripe-client';
-import { WebhookHandler } from './webhook-handler';
-import { CheckoutSessionConfig, PaymentResult, EntityMetadataUpdate } from './types';
+
+// Create fallback database client for when database is not available
+const createFallbackDatabaseClient = (): DatabaseClient => {
+  const isDevMode = process.env.NODE_ENV === 'development';
+  
+  // Demo entities for development mode
+  const demoEntities = [
+    {
+      id: 'demo-payment-entity-1',
+      name: 'Premium AI Content Package',
+      description: 'Access to premium AI-generated content',
+      metadata: {
+        payment: {
+          status: 'completed',
+          paymentId: 'demo-payment-123',
+          amount: 2999,
+          currency: 'usd',
+          purchasedAt: new Date().toISOString()
+        }
+      },
+      createdAt: new Date()
+    }
+  ];
+
+  return {
+    entity: {
+      async findUnique(args: any) {
+        if (isDevMode) {
+          console.info('[Payments Fallback] entity.findUnique() - returning demo entity');
+          return demoEntities.find(e => e.id === args.where?.id) || null;
+        }
+        return null;
+      },
+      
+      async update(args: any) {
+        if (isDevMode) {
+          console.info('[Payments Fallback] entity.update() - simulating update');
+          const entity = demoEntities.find(e => e.id === args.where?.id);
+          if (entity && args.data?.metadata) {
+            entity.metadata = { ...entity.metadata, ...args.data.metadata };
+          }
+          return entity;
+        }
+        throw new Error('Database not configured');
+      },
+      
+      async findMany(args: any) {
+        if (isDevMode) {
+          console.info('[Payments Fallback] entity.findMany() - returning demo entities');
+          return demoEntities;
+        }
+        return [];
+      }
+    },
+    
+    async $disconnect() {
+      console.info('[Payments Fallback] Database disconnect - no-op');
+    }
+  };
+};
 
 export class PaymentService {
   private prisma: DatabaseClient;
   private stripeClient: StripeClient;
   private webhookHandler: WebhookHandler;
+  private databaseEnabled: boolean;
 
   constructor(stripeSecretKey: string, prisma?: DatabaseClient) {
-    if (!prisma) {
-      throw new Error('Database client is required');
+    // Check if database is enabled and available
+    this.databaseEnabled = featureFlags.isEnabled('database') && Boolean(prisma);
+    
+    if (this.databaseEnabled && prisma) {
+      this.prisma = prisma;
+    } else {
+      console.warn('[Payments] Database not available, using fallback client');
+      this.prisma = createFallbackDatabaseClient();
     }
-    this.prisma = prisma;
+    
     this.stripeClient = new StripeClient(stripeSecretKey);
     this.webhookHandler = new WebhookHandler(this.stripeClient);
   }

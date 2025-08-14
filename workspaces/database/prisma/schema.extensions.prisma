@@ -1,0 +1,46 @@
+// Extended Prisma schema - additional models that depend on features being enabled
+// This extends the core schema with project-specific models
+
+// Abstract Project model - can represent any type of container/workspace
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  slug        String?  @unique
+  metadata    Json?    // Extensible data for project settings, configuration, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  entities    Entity[]
+  secrets     Secret[]
+  
+  @@map("projects")
+}
+
+model Secret {
+  id        String   @id @default(uuid())
+  projectId String
+  key       String
+  value     String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@unique([projectId, key])
+  @@map("secrets")
+}
+
+// Add relationships to core models when extensions are enabled
+extend model User {
+  projects  Project[]
+}
+
+extend model Entity {
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@index([projectId])
+  @@unique([projectId, slug])
+}
