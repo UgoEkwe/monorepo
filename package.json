@@ -11,10 +11,6 @@
     "workspaces/database",
     "workspaces/mobile",
     "workspaces/payments",
-    "workspaces/test-lib",
-    "workspaces/test-mobile",
-    "workspaces/test-service",
-    "workspaces/test-web",
     "workspaces/web"
   ],
   "scripts": {
@@ -45,18 +41,7 @@
     "db:seed": "turbo run db:seed --filter=database",
     "db:studio": "turbo run db:studio --filter=database",
     "setup": "npm install && npm run db:generate && npm run db:migrate && npm run db:seed",
-    "dev:test-lib": "turbo run dev --filter=test-lib",
-    "build:test-lib": "turbo run build --filter=test-lib",
-    "test:test-lib": "turbo run test --filter=test-lib",
-    "dev:test-web": "turbo run dev --filter=test-web",
-    "build:test-web": "turbo run build --filter=test-web",
-    "test:test-web": "turbo run test --filter=test-web",
-    "dev:test-mobile": "turbo run dev --filter=test-mobile",
-    "build:test-mobile": "turbo run build --filter=test-mobile",
-    "test:test-mobile": "turbo run test --filter=test-mobile",
-    "dev:test-service": "turbo run dev --filter=test-service",
-    "build:test-service": "turbo run build --filter=test-service",
-    "test:test-service": "turbo run test --filter=test-service"
+    "inject:project": "node scripts/inject-into-project.js"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

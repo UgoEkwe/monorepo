@@ -1,4 +1,18 @@
 # Modular AI Scaffold
+## Injection into Existing Projects
+
+Use the helper to inject this monorepo's workspaces (single/selective/full) into any target project.
+
+Examples:
+
+```bash
+node scripts/inject-into-project.js --target=/path/to/project --mode=single --workspaces=ai
+node scripts/inject-into-project.js --target=/path/to/project --mode=selective --workspaces=ai,web
+node scripts/inject-into-project.js --target=/path/to/project --mode=full
+```
+
+This will copy `workspaces/*` (excluding test-*) into the target's `workspaces/` directory, update the target root `package.json` workspaces, generate a minimal `turbo.json` if missing, and run `npm install` unless `--skip-install` is provided.
+
 
 A comprehensive, generic monorepo starter template designed to serve as a foundation for any type of application. Built with modularity in mind, featuring AI agents, multiple frontend options, and extensible architecture.
 
