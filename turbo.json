@@ -85,7 +85,6 @@
     "validate:deps": {
       "cache": true,
       "outputs": []
-    },
-    
+    }
   }
 }
