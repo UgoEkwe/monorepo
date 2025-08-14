@@ -12,8 +12,8 @@ export * from './agent-tools';
 
 // Main demo function for testing
 export async function runDemo(): Promise<void> {
-  const { DemoContentGenerator } = await import('./demo-content-generator');
-  const { prisma } = await import('./database');
+  const { DemoContentGenerator } = await import('./demo-content-generator.js');
+  const { prisma } = await import('./database.js');
 
   try {
     console.log('🚀 Starting AI workspace demo...');

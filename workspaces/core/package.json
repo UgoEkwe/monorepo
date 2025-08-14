@@ -24,6 +24,28 @@
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   },
+  "typesVersions": {
+    "*": {
+      "utils": [
+        "dist/utils/index.d.ts"
+      ],
+      "utils/*": [
+        "dist/utils/*.d.ts"
+      ],
+      "configs": [
+        "dist/configs/index.d.ts"
+      ],
+      "configs/*": [
+        "dist/configs/*.d.ts"
+      ],
+      "types": [
+        "dist/types/index.d.ts"
+      ],
+      "types/*": [
+        "dist/types/*.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -36,6 +58,10 @@
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./utils/*": {
+      "types": "./dist/utils/*.d.ts",
+      "default": "./dist/utils/*.js"
     },
     "./configs": {
       "types": "./dist/configs/index.d.ts",
